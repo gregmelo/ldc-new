@@ -1,0 +1,252 @@
+@use 'variables' as *;
+
+// ---- FORMS ----
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+
+  @media (max-width: $mobile) { grid-template-columns: 1fr; }
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  &--full { grid-column: 1 / -1; @media (max-width: $mobile) { grid-column: 1; } }
+
+  label { font-size: 13px; color: $text2; font-weight: 500; }
+
+  input[type="text"],
+  input[type="date"],
+  input[type="number"],
+  input[type="password"],
+  select,
+  textarea {
+    width: 100%;
+    padding: 9px 11px;
+    border: 0.5px solid $border2;
+    border-radius: $radius;
+    background: $surface2;
+    color: $text;
+    font-size: 14px;
+    font-family: inherit;
+    line-height: 1.4;
+
+    &:focus {
+      outline: none;
+      border-color: $accent;
+      box-shadow: 0 0 0 3px rgba(24, 95, 165, 0.12);
+    }
+  }
+
+  textarea { resize: vertical; }
+}
+
+.radio-group {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: $text;
+  cursor: pointer;
+  padding: 7px 12px;
+  border: 0.5px solid $border2;
+  border-radius: $radius;
+  background: $surface2;
+  transition: all 0.15s;
+
+  input { display: none; }
+
+  &--selected {
+    border-color: $accent;
+    background: $accent-bg;
+    color: $accent-text;
+  }
+}
+
+// ---- BUTTONS ----
+.btn {
+  padding: 9px 16px;
+  border: 0.5px solid $border2;
+  border-radius: $radius;
+  font-size: 14px;
+  cursor: pointer;
+  background: $surface;
+  color: $text;
+  font-family: inherit;
+  transition: all 0.15s;
+  white-space: nowrap;
+
+  &:hover { background: $surface2; }
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  &--primary {
+    background: $accent;
+    color: #fff;
+    border-color: $accent;
+    width: 100%;
+    margin-top: 14px;
+    padding: 11px;
+    font-weight: 500;
+    &:hover { opacity: 0.88; }
+  }
+
+  &--sm { padding: 5px 11px; font-size: 12px; }
+
+  &--danger {
+    color: $danger;
+    border-color: transparent;
+    background: transparent;
+    padding: 5px 8px;
+    &:hover { background: $danger-bg; }
+  }
+
+  &--ghost { font-size: 13px; color: $text2; padding: 5px 10px; }
+}
+
+// ---- ALERTS ----
+.alert {
+  border-radius: $radius;
+  padding: 9px 14px;
+  font-size: 13px;
+  margin-top: 10px;
+
+  &--success { background: $success-bg; color: $success-text; }
+  &--error   { background: $danger-bg;  color: $danger; }
+}
+
+// ---- METRICS ----
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 1.25rem;
+}
+
+.metric {
+  background: $surface2;
+  border-radius: $radius;
+  padding: 1rem;
+
+  &__label { font-size: 12px; color: $text2; margin-bottom: 5px; }
+  &__value { font-size: 24px; font-weight: 600; @media (max-width: $mobile) { font-size: 20px; } }
+  &__sub   { font-size: 11px; color: $text3; margin-top: 3px; }
+}
+
+// ---- TABLE ----
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  min-width: 420px;
+
+  th {
+    text-align: left;
+    padding: 8px 10px;
+    font-weight: 500;
+    font-size: 12px;
+    color: $text2;
+    border-bottom: 0.5px solid $border;
+  }
+
+  td {
+    padding: 10px;
+    border-bottom: 0.5px solid $border;
+    vertical-align: middle;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  @media (max-width: $mobile) {
+    font-size: 12px;
+    td, th { padding: 8px 7px; }
+  }
+}
+
+.row-clickable {
+  cursor: pointer;
+  transition: background 0.1s;
+  &:hover { background: $surface2; }
+}
+
+// ---- BADGES ----
+.badge {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+
+  &--visio   { background: $accent-bg;   color: $accent-text; }
+  &--message { background: $success-bg;  color: $success-text; }
+  &--admin   { background: $warning-bg;  color: $warning-text; }
+  &--user    { background: $surface2;    color: $text2; }
+}
+
+// ---- DETAIL ----
+.detail-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 14px;
+
+  &__label { color: $text2; min-width: 80px; font-weight: 500; font-size: 13px; }
+  &__value { color: $text; flex: 1; }
+}
+
+.detail-notes {
+  background: $surface2;
+  border-radius: $radius;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: $text;
+  line-height: 1.5;
+  margin-top: 4px;
+}
+
+// ---- MISC ----
+.quarter-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+
+  select { width: auto; min-width: 130px; }
+
+  &__label { margin: 0; font-size: 13px; color: $text2; font-weight: 500; }
+}
+
+.empty {
+  text-align: center;
+  color: $text3;
+  padding: 2.5rem 1rem;
+  font-size: 14px;
+}
+
+.login-card {
+  background: $surface;
+  border: 0.5px solid $border2;
+  border-radius: $radius-lg;
+  padding: 2rem;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: $shadow;
+
+  h1 { font-size: 20px; font-weight: 600; margin-bottom: 0.4rem; }
+  p  { font-size: 14px; color: $text2; margin-bottom: 1.5rem; }
+}

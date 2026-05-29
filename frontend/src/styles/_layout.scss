@@ -1,0 +1,162 @@
+@use 'variables' as *;
+
+.app-header {
+  background: $surface;
+  border-bottom: 0.5px solid $border;
+  padding: 0 1rem;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  h1 { font-size: 16px; font-weight: 600; }
+
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__username {
+    font-size: 13px;
+    color: $text2;
+    @media (max-width: $mobile) { display: none; }
+  }
+}
+
+.main {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 1.25rem 1rem 4rem;
+
+  @media (max-width: $mobile) {
+    padding: 1rem 0.75rem 5rem;
+  }
+}
+
+.tabs {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 1.25rem;
+  background: $surface2;
+  border-radius: $radius;
+  padding: 3px;
+}
+
+.tab {
+  flex: 1;
+  padding: 8px 4px;
+  font-size: 13px;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: $text2;
+  transition: all 0.15s;
+  font-family: inherit;
+
+  &.active {
+    background: $surface;
+    color: $text;
+    font-weight: 500;
+    box-shadow: 0 0.5px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  @media (max-width: $mobile) {
+    font-size: 12px;
+    padding: 7px 2px;
+  }
+}
+
+.card {
+  background: $surface;
+  border: 0.5px solid $border;
+  border-radius: $radius-lg;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+
+  @media (max-width: $mobile) {
+    padding: 1rem;
+    border-radius: $radius;
+  }
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  &__title { font-weight: 600; font-size: 15px; }
+
+  @media (max-width: $mobile) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.btn-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+
+  @media (max-width: $mobile) {
+    align-items: flex-end;
+    padding: 0;
+  }
+}
+
+.modal {
+  background: $surface;
+  border-radius: $radius-lg;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+
+  @media (max-width: $mobile) {
+    border-radius: $radius-lg $radius-lg 0 0;
+    max-height: 85vh;
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.1rem 1.25rem;
+    border-bottom: 0.5px solid $border;
+
+    h3 { font-size: 16px; font-weight: 600; }
+  }
+
+  &__body { padding: 1.25rem; }
+
+  &__close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: $text2;
+    padding: 2px 6px;
+    border-radius: $radius;
+    &:hover { background: $surface2; }
+  }
+}
