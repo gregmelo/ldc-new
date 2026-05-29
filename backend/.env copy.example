@@ -1,0 +1,5 @@
+DB_HOST=mysql-xxxx.alwaysdata.net
+DB_NAME=nom_de_la_base
+DB_USER=utilisateur_mysql
+DB_PASS=mot_de_passe_mysql
+APP_SECRET=secret_aleatoire
