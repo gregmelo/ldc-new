@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controllers;
 
 use App\Auth;
@@ -42,10 +43,11 @@ class InterventionController
 
         $db   = Database::getInstance();
         $stmt = $db->prepare(
-            'INSERT INTO interventions (date, nom, type, duree, sujet, notes, status) VALUES (?, ?, ?, ?, ?, ?, ?)'
+            'INSERT INTO interventions (date, date_fin, nom, type, duree, sujet, notes, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
         );
         $stmt->execute([
             $body['date'],
+            !empty($body['date_fin']) ? $body['date_fin'] : null,
             htmlspecialchars($body['nom']),
             $body['type'],
             $body['duree'] ?? null,
@@ -70,10 +72,11 @@ class InterventionController
 
         $db   = Database::getInstance();
         $stmt = $db->prepare(
-            'UPDATE interventions SET date=?, nom=?, type=?, duree=?, sujet=?, notes=?, status=? WHERE id=?'
+            'UPDATE interventions SET date=?, date_fin=?, nom=?, type=?, duree=?, sujet=?, notes=?, status=? WHERE id=?'
         );
         $stmt->execute([
             $body['date'],
+            !empty($body['date_fin']) ? $body['date_fin'] : null,
             htmlspecialchars($body['nom']),
             $body['type'],
             $body['duree'] ?? null,

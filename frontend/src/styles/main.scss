@@ -25,7 +25,6 @@ body {
   z-index: 10;
 
   h1 { font-size: 16px; font-weight: 600; }
-
   &__right { display: flex; align-items: center; gap: 8px; }
   &__username {
     font-size: 13px; color: var(--text2);
@@ -189,7 +188,7 @@ body {
 .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
 table {
-  width: 100%; border-collapse: collapse; font-size: 13px; min-width: 440px;
+  width: 100%; border-collapse: collapse; font-size: 13px;
   th { text-align: left; padding: 8px 10px; font-weight: 500; font-size: 12px; color: var(--text2); border-bottom: 0.5px solid var(--border); }
   td { padding: 10px; border-bottom: 0.5px solid var(--border); vertical-align: middle; }
   tr:last-child td { border-bottom: none; }
@@ -201,10 +200,11 @@ table {
 // ---- Badges ----
 .badge {
   display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 12px; font-weight: 500;
-  &--visio   { background: var(--accent-bg);  color: var(--accent-text); }
-  &--message { background: var(--success-bg); color: var(--success-text); }
-  &--admin   { background: var(--warning-bg); color: var(--warning-text); }
-  &--user    { background: var(--surface2);   color: var(--text2); }
+  &--visio          { background: var(--accent-bg);  color: var(--accent-text); }
+  &--message        { background: var(--success-bg); color: var(--success-text); }
+  &--admin          { background: var(--warning-bg); color: var(--warning-text); }
+  &--user           { background: var(--surface2);   color: var(--text2); }
+  &--envoye_support { background: #EDE9FE;            color: #5B21B6; }
 }
 
 // ---- Status badges ----
@@ -212,10 +212,11 @@ table {
   display: inline-flex; align-items: center; gap: 4px;
   padding: 3px 9px; border-radius: 20px; font-size: 12px; font-weight: 500;
 
-  &--en_cours    { background: var(--accent-bg);  color: var(--accent-text); }
-  &--resolu      { background: var(--success-bg); color: var(--success-text); }
-  &--en_attente  { background: var(--warning-bg); color: var(--warning-text); }
-  &--annule      { background: var(--surface2);   color: var(--text3); text-decoration: line-through; }
+  &--en_cours       { background: var(--accent-bg);  color: var(--accent-text); }
+  &--resolu         { background: var(--success-bg); color: var(--success-text); }
+  &--en_attente     { background: var(--warning-bg); color: var(--warning-text); }
+  &--annule         { background: var(--surface2);   color: var(--text3); text-decoration: line-through; }
+  &--envoye_support { background: #EDE9FE;            color: #5B21B6; }
 }
 
 // ---- Detail ----
@@ -244,4 +245,96 @@ table {
   max-width: 380px; box-shadow: var(--shadow);
   h1 { font-size: 20px; font-weight: 600; margin-bottom: 0.4rem; }
   p  { font-size: 14px; color: var(--text2); margin-bottom: 1.5rem; }
+}
+
+// ---- Tableau desktop / Cards mobile ----
+.table-desktop { display: block; }
+
+.status-select {
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 12px;
+  border-radius: 20px;
+  padding: 3px 6px;
+  width: 100%;
+  max-width: 160px;
+}
+
+.intervention-cards {
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.intervention-card {
+  background: var(--surface2);
+  border-radius: 8px;
+  padding: 12px 14px;
+  cursor: pointer;
+  border: 0.5px solid var(--border);
+}
+
+.intervention-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  gap: 8px;
+}
+
+.intervention-card__name { font-weight: 600; font-size: 14px; }
+.intervention-card__date { font-size: 12px; color: var(--text3); }
+
+.intervention-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.intervention-card__sujet {
+  font-size: 13px;
+  color: var(--text2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 8px;
+}
+
+.intervention-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+// ---- Stats statut ----
+.status-stats {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.status-stat {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--surface2);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.status-stat__count { font-weight: 600; }
+.status-stat__label { color: var(--text2); }
+
+// ---- Media queries mobile ----
+@media (max-width: 600px) {
+  .table-desktop    { display: none; }
+  .intervention-cards { display: flex; }
+  .col-sujet        { display: none; }
+  .status-select    { font-size: 11px; padding: 2px 4px; max-width: 120px; }
 }

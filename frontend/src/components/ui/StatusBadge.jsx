@@ -1,4 +1,4 @@
-const STATUS_CONFIG = {
+export const STATUS_CONFIG = {
   en_cours:   { label: 'En cours',           icon: '🔄' },
   resolu:     { label: 'Résolu',             icon: '✅' },
   en_attente: { label: 'En attente retour',  icon: '⏳' },
