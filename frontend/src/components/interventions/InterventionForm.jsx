@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useInterventionStore } from "../../store";
 import { STATUS_OPTIONS } from "../ui/StatusBadge";
+import RichTextEditor from '../ui/RichTextEditor'
 
 const today = () => new Date().toISOString().split("T")[0];
 
@@ -146,12 +147,7 @@ export default function InterventionForm() {
 
         <div className="form-group form-group--full">
           <label>Notes (optionnel)</label>
-          <textarea
-            rows={3}
-            value={form.notes}
-            onChange={(e) => set("notes", e.target.value)}
-            placeholder="Détails, solution apportée..."
-          />
+          <RichTextEditor value={form.notes} onChange={(val) => set('notes', val)} />
         </div>
       </div>
 

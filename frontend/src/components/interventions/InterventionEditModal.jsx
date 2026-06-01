@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useInterventionStore } from "../../store";
 import Modal from "../ui/Modal";
 import { STATUS_OPTIONS } from "../ui/StatusBadge";
+import RichTextEditor from '../ui/RichTextEditor'
 
 export default function InterventionEditModal({ intervention, onClose }) {
   const update = useInterventionStore((s) => s.update);
@@ -151,12 +152,7 @@ export default function InterventionEditModal({ intervention, onClose }) {
 
         <div className="form-group form-group--full">
           <label>Notes</label>
-          <textarea
-            rows={4}
-            value={form.notes}
-            onChange={(e) => set("notes", e.target.value)}
-            placeholder="Détails, solution apportée..."
-          />
+          <RichTextEditor value={form.notes} onChange={(val) => set('notes', val)} />
         </div>
       </div>
 

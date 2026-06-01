@@ -48,7 +48,7 @@ export default function InterventionModal({ intervention, onClose }) {
           <span className="detail-row__label">Notes</span>
           <div
             className="detail-notes"
-            dangerouslySetInnerHTML={{ __html: (r.notes || '').replace(/\n/g, '<br>') }}
+            dangerouslySetInnerHTML={{ __html: r.notes || ''}}
           />
         </div>
       )}

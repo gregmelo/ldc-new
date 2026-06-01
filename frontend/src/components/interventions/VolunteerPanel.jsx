@@ -150,7 +150,7 @@ export default function VolunteerPanel({ name, interventions, onClose }) {
                     background: 'var(--surface)', borderRadius: 6,
                     padding: '6px 10px', lineHeight: 1.5,
                   }}>
-                    {row.notes}
+                    <div dangerouslySetInnerHTML={{ __html: row.notes }} />
                   </div>
                 )}
               </div>

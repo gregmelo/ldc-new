@@ -5,8 +5,19 @@ namespace App\Controllers;
 use App\Auth;
 use App\Database;
 
+function sanitizeHtml(string $html): string
+{
+    $config = \HTMLPurifier_Config::createDefault();
+    $config->set('HTML.Allowed', 'p,br,strong,em,h2,ul,ol,li,a[href|rel],blockquote,code,pre');
+    $config->set('HTML.AllowedAttributes', 'a.href,a.rel');
+    $config->set('Attr.AllowedRel', 'noopener noreferrer');
+    $purifier = new \HTMLPurifier($config);
+    return $purifier->purify($html);
+}
 class InterventionController
 {
+
+
     public function index(): void
     {
         Auth::check();
@@ -48,11 +59,11 @@ class InterventionController
         $stmt->execute([
             $body['date'],
             !empty($body['date_fin']) ? $body['date_fin'] : null,
-            htmlspecialchars($body['nom']),
+            sanitizeHtml($body['nom']),
             $body['type'],
             $body['duree'] ?? null,
-            htmlspecialchars($body['sujet']),
-            htmlspecialchars($body['notes'] ?? ''),
+            sanitizeHtml($body['sujet']),
+            sanitizeHtml($body['notes'] ?? ''),
             $body['status'] ?? 'en_cours',
         ]);
 
@@ -77,11 +88,11 @@ class InterventionController
         $stmt->execute([
             $body['date'],
             !empty($body['date_fin']) ? $body['date_fin'] : null,
-            htmlspecialchars($body['nom']),
+            sanitizeHtml($body['nom']),
             $body['type'],
             $body['duree'] ?? null,
-            htmlspecialchars($body['sujet']),
-            htmlspecialchars($body['notes'] ?? ''),
+            sanitizeHtml($body['sujet']),
+            sanitizeHtml($body['notes'] ?? ''),
             $body['status'] ?? 'en_cours',
             $id,
         ]);
