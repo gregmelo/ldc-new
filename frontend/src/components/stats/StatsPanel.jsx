@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useInterventionStore } from "../../store";
-import { STATUS_CONFIG } from '../ui/StatusBadge';
+import { STATUS_CONFIG } from "../ui/StatusBadge";
+import { exportRapportPDF } from '../../utils/pdfExport';
 
 function getQuarter(dateStr) {
   const d = (dateStr || "").split("T")[0];
@@ -80,35 +81,12 @@ export default function StatsPanel() {
     downloadBlob(csv, `rapport_${q}.csv`, "text/csv;charset=utf-8;");
   }
 
-  function exportPDF() {
-    const personRows = personEntries
-      .map(([n, c]) => `<tr><td>${n}</td><td>${c}</td></tr>`)
-      .join("");
-    const label = quarterLabel(q);
-    const today = new Date().toLocaleDateString("fr-FR");
-    let html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Rapport ${label}</title>`;
-    html += `<style>body{font-family:Arial,sans-serif;padding:2rem;color:#1a1a18;max-width:600px;margin:0 auto}`;
-    html += `h1{font-size:22px;margin-bottom:.3rem}h2{font-size:15px;color:#5f5e5a;margin-bottom:1.5rem;font-weight:normal}`;
-    html += `.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.5rem}`;
-    html += `.metric{background:#f0efeb;border-radius:8px;padding:1rem}.l{font-size:12px;color:#5f5e5a;margin-bottom:4px}`;
-    html += `.v{font-size:22px;font-weight:700}table{width:100%;border-collapse:collapse;font-size:14px}`;
-    html += `th{text-align:left;padding:8px;border-bottom:1px solid #ddd;font-size:12px;color:#5f5e5a}`;
-    html += `td{padding:8px;border-bottom:1px solid #eee}.footer{margin-top:2rem;font-size:12px;color:#999}</style></head><body>`;
-    html += `<h1>Rapport trimestriel</h1><h2>Suivi interventions LDC — ${label}</h2>`;
-    html += `<div class="grid">`;
-    html += `<div class="metric"><div class="l">Total interventions</div><div class="v">${rows.length}</div></div>`;
-    html += `<div class="metric"><div class="l">Visios / appels</div><div class="v">${visios.length}</div></div>`;
-    html += `<div class="metric"><div class="l">Aides par message</div><div class="v">${msgs.length}</div></div>`;
-    html += `<div class="metric"><div class="l">Temps en visio</div><div class="v">${timeStr}</div></div>`;
-    html += `</div><h3>Détail par volontaire</h3>`;
-    html += `<table><thead><tr><th>Volontaire</th><th>Nb interventions</th></tr></thead><tbody>${personRows}</tbody></table>`;
-    html += `<div class="footer">Généré le ${today}</div></body></html>`;
-    const win = window.open("", "_blank");
-    if (win) {
-      win.document.write(html);
-      win.document.close();
-      win.onload = () => win.print();
-    }
+  async function exportPDF() {
+    await exportRapportPDF(interventions, quarterLabel(q), [
+      "chart-evolution",
+      "chart-statuts",
+      "chart-top",
+    ]);
   }
 
   return (

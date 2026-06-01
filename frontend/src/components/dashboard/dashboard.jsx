@@ -229,7 +229,7 @@ export default function Dashboard() {
       </div>
 
       {/* Évolution mensuelle */}
-      <div className="card">
+      <div className="card" id="chart-evolution">
         <div style={{ fontWeight: 600, fontSize: 14, marginBottom: "1rem" }}>
           Évolution des interventions (12 derniers mois)
         </div>
@@ -255,7 +255,7 @@ export default function Dashboard() {
       <div
         style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}
       >
-        <div className="card dashboard-grid">
+        <div className="card dashboard-grid" id="chart-status">
           <div style={{ fontWeight: 600, fontSize: 14, marginBottom: "1rem" }}>
             Répartition par statut
           </div>
@@ -279,7 +279,7 @@ export default function Dashboard() {
           )}
         </div>
 
-        <div className="card dashboard-grid">
+        <div className="card dashboard-grid" id="chart-top">
           <div style={{ fontWeight: 600, fontSize: 14, marginBottom: "1rem" }}>
             Top 5 volontaires
           </div>
