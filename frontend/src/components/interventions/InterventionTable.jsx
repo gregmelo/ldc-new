@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useInterventionStore } from "../../store";
 import InterventionEditModal from "./InterventionEditModal";
+import VolunteerPanel from "./VolunteerPanel";
 
 function formatDate(d) {
   if (!d) return "";
@@ -44,6 +45,7 @@ function StatusSelect({ row, onChange }) {
 }
 
 export default function InterventionTable() {
+  const [selectedVolunteer, setSelectedVolunteer] = useState(null);
   const { interventions, loading, fetch, remove, update } =
     useInterventionStore();
   const [editing, setEditing] = useState(null);
@@ -221,7 +223,17 @@ export default function InterventionTable() {
                   onClick={() => setEditing(row)}
                 >
                   <td>{formatDate(row.date)}</td>
-                  <td>{row.nom}</td>
+                  <td>
+                    <span
+                      style={{ cursor: "pointer", fontWeight: 500 }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedVolunteer(row.nom);
+                      }}
+                    >
+                      {row.nom}
+                    </span>
+                  </td>
                   <td>
                     <span className={`badge badge--${row.type}`}>
                       {row.type === "visio" ? "📹 Visio" : "💬 Msg"}
@@ -270,7 +282,15 @@ export default function InterventionTable() {
               onClick={() => setEditing(row)}
             >
               <div className="intervention-card__header">
-                <span className="intervention-card__name">{row.nom}</span>
+                <span
+                  className="intervention-card__name"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedVolunteer(row.nom);
+                  }}
+                >
+                  {row.nom}
+                </span>
                 <span className="intervention-card__date">
                   {formatDate(row.date)}
                 </span>
@@ -309,6 +329,14 @@ export default function InterventionTable() {
           fetch();
         }}
       />
+
+      {selectedVolunteer && (
+        <VolunteerPanel
+          name={selectedVolunteer}
+          interventions={interventions}
+          onClose={() => setSelectedVolunteer(null)}
+        />
+      )}
     </div>
   );
 }
