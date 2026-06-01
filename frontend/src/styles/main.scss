@@ -333,6 +333,7 @@ table {
 
 // ---- Media queries mobile ----
 @media (max-width: 600px) {
+  .dashboard-grid { grid-template-columns: 1fr !important; }
   .table-desktop    { display: none; }
   .intervention-cards { display: flex; }
   .col-sujet        { display: none; }
