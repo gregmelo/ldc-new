@@ -4,6 +4,7 @@ namespace App;
 use App\Controllers\AuthController;
 use App\Controllers\InterventionController;
 use App\Controllers\UserController;
+use App\Controllers\ActivityLogController;
 
 class Router
 {
@@ -26,16 +27,16 @@ class Router
         $m   = $this->method;
         $n   = count($seg);
 
-        // POST /login
         if ($ep === 'login' && $m === 'POST') {
-            (new AuthController())->login();
-            return;
+            (new AuthController())->login(); return;
+        }
+        if ($ep === 'me' && $m === 'GET') {
+            (new AuthController())->me(); return;
         }
 
-        // GET /me
-        if ($ep === 'me' && $m === 'GET') {
-            (new AuthController())->me();
-            return;
+        // /activity-log
+        if ($ep === 'activity-log' && $m === 'GET') {
+            (new ActivityLogController())->index(); return;
         }
 
         // /users
@@ -44,17 +45,12 @@ class Router
             if ($m === 'GET')  { $ctrl->index(); return; }
             if ($m === 'POST') { $ctrl->create(); return; }
         }
-
-        // /users/:id
-        if ($n >= 2 && $seg[$n - 2] === 'users' && is_numeric($ep)) {
+        if ($n >= 2 && $seg[$n-2] === 'users' && is_numeric($ep)) {
             $ctrl = new UserController();
             if ($m === 'DELETE') { $ctrl->delete((int)$ep); return; }
         }
-
-        // /users/:id/password
-        if ($ep === 'password' && $n >= 3 && $seg[$n - 3] === 'users' && $m === 'PUT') {
-            (new UserController())->updatePassword((int)$seg[$n - 2]);
-            return;
+        if ($ep === 'password' && $n >= 3 && $seg[$n-3] === 'users' && $m === 'PUT') {
+            (new UserController())->updatePassword((int)$seg[$n-2]); return;
         }
 
         // /interventions
@@ -63,9 +59,7 @@ class Router
             if ($m === 'GET')  { $ctrl->index(); return; }
             if ($m === 'POST') { $ctrl->create(); return; }
         }
-
-        // /interventions/:id
-        if ($n >= 2 && $seg[$n - 2] === 'interventions' && is_numeric($ep)) {
+        if ($n >= 2 && $seg[$n-2] === 'interventions' && is_numeric($ep)) {
             $ctrl = new InterventionController();
             if ($m === 'GET')    { $ctrl->show((int)$ep); return; }
             if ($m === 'PUT')    { $ctrl->update((int)$ep); return; }

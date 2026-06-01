@@ -37,4 +37,8 @@ export const api = {
   deleteUser: (id) => request(`/users/${id}`, 'DELETE'),
   updatePassword: (id, password) =>
     request(`/users/${id}/password`, 'PUT', { password }),
+
+  // Activity log  ← ajoute ici
+  getActivityLog: (offset = 0, limit = 25) =>
+    request(`/activity-log?offset=${offset}&limit=${limit}`),
 }

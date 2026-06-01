@@ -5,12 +5,14 @@ import InterventionTable from './interventions/InterventionTable'
 import StatsPanel        from './stats/StatsPanel'
 import UserTable         from './users/UserTable'
 import Dashboard from './dashboard/Dashboard'
+import ActivityLogPanel from './dashboard/ActivityLogPanel'
 
 const TABS = [
   { id: 'dashboard', label: '📊 Dashboard' },
   { id: 'saisie', label: '+ Nouvelle' },
   { id: 'liste',  label: 'Historique' },
   { id: 'stats',  label: 'Rapport' },
+  { id: 'activity', label: '📋 Journal' },
 ]
 
 export default function Layout() {
@@ -55,6 +57,7 @@ export default function Layout() {
         {activeTab === 'liste'  && <InterventionTable />}
         {activeTab === 'stats'  && <StatsPanel />}
         {activeTab === 'users'  && <UserTable />}
+        {activeTab === 'activity' && <ActivityLogPanel />}
       </main>
     </div>
   )
