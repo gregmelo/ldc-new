@@ -6,6 +6,7 @@ import StatsPanel        from './stats/StatsPanel'
 import UserTable         from './users/UserTable'
 import Dashboard from './dashboard/Dashboard'
 import ActivityLogPanel from './dashboard/ActivityLogPanel'
+import { useSessionTimeout } from '../hooks/useSessionTimeout'
 
 const TABS = [
   { id: 'dashboard', label: '📊 Dashboard' },
@@ -16,6 +17,7 @@ const TABS = [
 ]
 
 export default function Layout() {
+  useSessionTimeout()
   const { user, logout } = useAuthStore()
   const { theme, toggle, init } = useThemeStore()
   const [activeTab, setActiveTab] = useState('saisie')
