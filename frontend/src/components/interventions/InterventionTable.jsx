@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useInterventionStore } from "../../store";
 import InterventionEditModal from "./InterventionEditModal";
 import VolunteerPanel from "./VolunteerPanel";
+import { CATEGORIES } from '../../utils/categories'
 
 function formatDate(d) {
   if (!d) return "";
@@ -52,6 +53,7 @@ export default function InterventionTable() {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [filterType, setFilterType] = useState("");
+  const [filterCategory, setFilterCategory] = useState("");
 
   useEffect(() => {
     fetch();
@@ -99,7 +101,8 @@ export default function InterventionTable() {
       r.sujet.toLowerCase().includes(search.toLowerCase());
     const matchStatus = !filterStatus || r.status === filterStatus;
     const matchType = !filterType || r.type === filterType;
-    return matchSearch && matchStatus && matchType;
+    const matchCategory = !filterCategory || r.category === filterCategory;
+    return matchSearch && matchStatus && matchType && matchCategory;
   });
 
   return (
@@ -170,6 +173,25 @@ export default function InterventionTable() {
           <option value="visio">📹 Visio</option>
           <option value="message">💬 Message</option>
         </select>
+        <select
+          value={filterCategory}
+          onChange={(e) => setFilterCategory(e.target.value)}
+          style={{
+            padding: "7px 11px",
+            border: "0.5px solid var(--border2)",
+            borderRadius: 8,
+            background: "var(--surface2)",
+            color: "var(--text)",
+            fontSize: 13,
+          }}
+        >
+          <option value="">Toutes les catégories</option>
+          {CATEGORIES.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* Stats statut */}
@@ -197,6 +219,7 @@ export default function InterventionTable() {
               <th>Type</th>
               <th>Statut</th>
               <th className="col-sujet">Sujet</th>
+              <th className="col-category">Catégorie</th>
               <th></th>
             </tr>
           </thead>
@@ -254,6 +277,7 @@ export default function InterventionTable() {
                   >
                     {row.sujet}
                   </td>
+                  <td className="col-category">{row.category || 'Autre'}</td>
                   <td>
                     <button
                       className="btn btn--danger btn--sm"

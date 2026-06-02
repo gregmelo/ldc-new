@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { useInterventionStore } from "../../store";
 import Modal from "../ui/Modal";
 import { STATUS_OPTIONS } from "../ui/StatusBadge";
-import RichTextEditor from '../ui/RichTextEditor'
+import RichTextEditor from "../ui/RichTextEditor";
+import { CATEGORIES } from '../../utils/categories'
 
 export default function InterventionEditModal({ intervention, onClose }) {
   const update = useInterventionStore((s) => s.update);
@@ -113,6 +114,20 @@ export default function InterventionEditModal({ intervention, onClose }) {
           </div>
         </div>
 
+        <div className="form-group form-group--full">
+          <label>Catégorie</label>
+          <select
+            value={form.category}
+            onChange={(e) => set("category", e.target.value)}
+          >
+            {CATEGORIES.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+        </div>
+
         {form.type === "visio" && (
           <div className="form-group">
             <label>Durée (minutes)</label>
@@ -152,7 +167,10 @@ export default function InterventionEditModal({ intervention, onClose }) {
 
         <div className="form-group form-group--full">
           <label>Notes</label>
-          <RichTextEditor value={form.notes} onChange={(val) => set('notes', val)} />
+          <RichTextEditor
+            value={form.notes}
+            onChange={(val) => set("notes", val)}
+          />
         </div>
       </div>
 

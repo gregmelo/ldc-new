@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useInterventionStore } from "../../store";
 import { STATUS_OPTIONS } from "../ui/StatusBadge";
-import RichTextEditor from '../ui/RichTextEditor'
+import RichTextEditor from "../ui/RichTextEditor";
+import { CATEGORIES } from "../../utils/categories";
 
 const today = () => new Date().toISOString().split("T")[0];
 
@@ -108,6 +109,20 @@ export default function InterventionForm() {
           </div>
         </div>
 
+        <div className="form-group form-group--full">
+          <label>Catégorie</label>
+          <select
+            value={form.category}
+            onChange={(e) => set("category", e.target.value)}
+          >
+            {CATEGORIES.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+        </div>
+
         {form.type === "visio" && (
           <div className="form-group">
             <label>Durée (minutes)</label>
@@ -147,7 +162,10 @@ export default function InterventionForm() {
 
         <div className="form-group form-group--full">
           <label>Notes (optionnel)</label>
-          <RichTextEditor value={form.notes} onChange={(val) => set('notes', val)} />
+          <RichTextEditor
+            value={form.notes}
+            onChange={(val) => set("notes", val)}
+          />
         </div>
       </div>
 

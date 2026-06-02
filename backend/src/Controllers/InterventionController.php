@@ -1,11 +1,13 @@
 <?php
+
 namespace App\Controllers;
 
 use App\Auth;
 use App\Database;
 use App\ActivityLog;
 
-function sanitizeHtml(string $html): string {
+function sanitizeHtml(string $html): string
+{
     $config = \HTMLPurifier_Config::createDefault();
     $config->set('HTML.Allowed', 'p,br,strong,em,h2,ul,ol,li,a[href|rel],blockquote,code,pre');
     $config->set('HTML.AllowedAttributes', 'a.href,a.rel');
@@ -52,13 +54,14 @@ class InterventionController
 
         $db   = Database::getInstance();
         $stmt = $db->prepare(
-            'INSERT INTO interventions (date, date_fin, nom, type, duree, sujet, notes, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+            'INSERT INTO interventions (date, date_fin, nom, type, category, duree, sujet, notes, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
         );
         $stmt->execute([
             $body['date'],
             !empty($body['date_fin']) ? $body['date_fin'] : null,
             $body['nom'],
             $body['type'],
+            $body['category'] ?? 'Autre',
             $body['duree'] ?? null,
             $body['sujet'],
             sanitizeHtml($body['notes'] ?? ''),
@@ -67,7 +70,12 @@ class InterventionController
 
         $newId = (int)$db->lastInsertId();
 
-        ActivityLog::log($db, $user, 'create', 'intervention', $newId,
+        ActivityLog::log(
+            $db,
+            $user,
+            'create',
+            'intervention',
+            $newId,
             "Nouvelle intervention pour {$body['nom']} : {$body['sujet']}"
         );
 
@@ -88,18 +96,19 @@ class InterventionController
         $db = Database::getInstance();
 
         // Récupérer l'ancienne valeur pour détecter le changement de statut
-        $oldStmt = $db->prepare('SELECT status, nom, sujet FROM interventions WHERE id = ?');
+        $oldStmt = $db->prepare('SELECT status, nom, sujet, category FROM interventions WHERE id = ?');
         $oldStmt->execute([$id]);
         $old = $oldStmt->fetch();
 
         $stmt = $db->prepare(
-            'UPDATE interventions SET date=?, date_fin=?, nom=?, type=?, duree=?, sujet=?, notes=?, status=? WHERE id=?'
+            'UPDATE interventions SET date=?, date_fin=?, nom=?, type=?, category=?, duree=?, sujet=?, notes=?, status=? WHERE id=?'
         );
         $stmt->execute([
             $body['date'],
             !empty($body['date_fin']) ? $body['date_fin'] : null,
             $body['nom'],
             $body['type'],
+            $body['category'] ?? 'Autre',
             $body['duree'] ?? null,
             $body['sujet'],
             sanitizeHtml($body['notes'] ?? ''),
@@ -110,11 +119,21 @@ class InterventionController
         // Log selon le type de modification
         $newStatus = $body['status'] ?? 'en_cours';
         if ($old && $old['status'] !== $newStatus) {
-            ActivityLog::log($db, $user, 'status_change', 'intervention', $id,
+            ActivityLog::log(
+                $db,
+                $user,
+                'status_change',
+                'intervention',
+                $id,
                 "Statut modifié : {$old['status']} → {$newStatus} ({$body['nom']} : {$body['sujet']})"
             );
         } else {
-            ActivityLog::log($db, $user, 'update', 'intervention', $id,
+            ActivityLog::log(
+                $db,
+                $user,
+                'update',
+                'intervention',
+                $id,
                 "Intervention modifiée pour {$body['nom']} : {$body['sujet']}"
             );
         }
@@ -135,7 +154,12 @@ class InterventionController
         $deleteStmt = $db->prepare('DELETE FROM interventions WHERE id = ?');
         $deleteStmt->execute([$id]);
 
-        ActivityLog::log($db, $user, 'delete', 'intervention', $id,
+        ActivityLog::log(
+            $db,
+            $user,
+            'delete',
+            'intervention',
+            $id,
             $row ? "Intervention supprimée pour {$row['nom']} : {$row['sujet']}" : "Intervention #$id supprimée"
         );
 
