@@ -1,4 +1,5 @@
 <?php
+
 namespace App;
 
 use App\Controllers\AuthController;
@@ -28,42 +29,75 @@ class Router
         $n   = count($seg);
 
         if ($ep === 'login' && $m === 'POST') {
-            (new AuthController())->login(); return;
+            (new AuthController())->login();
+            return;
         }
         if ($ep === 'me' && $m === 'GET') {
-            (new AuthController())->me(); return;
+            (new AuthController())->me();
+            return;
         }
 
         // /activity-log
         if ($ep === 'activity-log' && $m === 'GET') {
-            (new ActivityLogController())->index(); return;
+            (new ActivityLogController())->index();
+            return;
         }
 
         // /users
         if ($ep === 'users') {
             $ctrl = new UserController();
-            if ($m === 'GET')  { $ctrl->index(); return; }
-            if ($m === 'POST') { $ctrl->create(); return; }
+            if ($m === 'GET') {
+                $ctrl->index();
+                return;
+            }
+            if ($m === 'POST') {
+                $ctrl->create();
+                return;
+            }
         }
-        if ($n >= 2 && $seg[$n-2] === 'users' && is_numeric($ep)) {
+        if ($n >= 2 && $seg[$n - 2] === 'users' && is_numeric($ep)) {
             $ctrl = new UserController();
-            if ($m === 'DELETE') { $ctrl->delete((int)$ep); return; }
+            if ($m === 'DELETE') {
+                $ctrl->delete((int)$ep);
+                return;
+            }
         }
-        if ($ep === 'password' && $n >= 3 && $seg[$n-3] === 'users' && $m === 'PUT') {
-            (new UserController())->updatePassword((int)$seg[$n-2]); return;
+        if ($ep === 'password' && $n >= 3 && $seg[$n - 3] === 'users' && $m === 'PUT') {
+            (new UserController())->updatePassword((int)$seg[$n - 2]);
+            return;
         }
 
         // /interventions
         if ($ep === 'interventions') {
             $ctrl = new InterventionController();
-            if ($m === 'GET')  { $ctrl->index(); return; }
-            if ($m === 'POST') { $ctrl->create(); return; }
+            if ($m === 'GET') {
+                $ctrl->index();
+                return;
+            }
+            if ($m === 'POST') {
+                $ctrl->create();
+                return;
+            }
         }
-        if ($n >= 2 && $seg[$n-2] === 'interventions' && is_numeric($ep)) {
+        if ($n >= 2 && $seg[$n - 2] === 'interventions' && is_numeric($ep)) {
             $ctrl = new InterventionController();
-            if ($m === 'GET')    { $ctrl->show((int)$ep); return; }
-            if ($m === 'PUT')    { $ctrl->update((int)$ep); return; }
-            if ($m === 'DELETE') { $ctrl->delete((int)$ep); return; }
+            if ($m === 'GET') {
+                $ctrl->show((int)$ep);
+                return;
+            }
+            if ($m === 'PUT') {
+                $ctrl->update((int)$ep);
+                return;
+            }
+            if ($m === 'DELETE') {
+                $ctrl->delete((int)$ep);
+                return;
+            }
+        }
+
+        if ($ep === 'activity-log' && $m === 'DELETE') {
+            (new ActivityLogController())->purge();
+            return;
         }
 
         http_response_code(404);

@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Auth;
 use App\Database;
+use App\ActivityLog;
 
 class ActivityLogController
 {
@@ -27,5 +28,18 @@ class ActivityLogController
         $total = (int)$countStmt->fetchColumn();
 
         echo json_encode(['logs' => $logs, 'total' => $total]);
+    }
+
+    public function purge(): void
+    {
+        Auth::checkAdmin();
+        $db = Database::getInstance();
+        $db->exec('TRUNCATE TABLE activity_log');
+
+        // Log la purge elle-même
+        $user = Auth::check();
+        ActivityLog::log($db, $user, 'purge', 'activity_log', null, 'Journal d\'activité purgé');
+
+        echo json_encode(['success' => true]);
     }
 }

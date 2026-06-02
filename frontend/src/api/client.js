@@ -41,4 +41,6 @@ export const api = {
   // Activity log  ← ajoute ici
   getActivityLog: (offset = 0, limit = 25) =>
     request(`/activity-log?offset=${offset}&limit=${limit}`),
+
+  purgeActivityLog: () => request('/activity-log', 'DELETE'),
 }
