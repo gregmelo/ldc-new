@@ -52,7 +52,6 @@ export default function Dashboard() {
 
   useEffect(() => { fetch(); }, []);
 
-  // Filtrage selon la vue
   const displayInterventions = view === "personal"
     ? interventions.filter((r) => r.nom === currentUser?.username)
     : interventions;
@@ -73,10 +72,11 @@ export default function Dashboard() {
   const curH = Math.floor(curVisioMin / 60);
   const curM = curVisioMin % 60;
 
+  const now = new Date();
+
   // Évolution mensuelle
   const monthLabels = [];
   const monthData   = [];
-  const now = new Date();
   for (let i = 11; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const label = d.toLocaleDateString("fr-FR", { month: "short", year: "2-digit" });
@@ -93,18 +93,37 @@ export default function Dashboard() {
   // Répartition statut
   const statusLabels = ["En cours", "Résolu", "En attente", "Annulé", "Support Béthel"];
   const statusKeys   = ["en_cours", "resolu", "en_attente", "annule", "envoye_support"];
-  const statusData   = statusKeys.map((k) => displayInterventions.filter((r) => (r.status || "en_cours") === k).length);
-  const statusColors = ["#185FA5", "#085041", "#92400E", "#888780", "#5B21B6"];
-  const statusBg     = ["#185FA5cc", "#085041cc", "#92400Ecc", "#888780cc", "#5B21B6cc"];
 
   // Top 5
   const byPerson = {};
   displayInterventions.forEach((r) => { byPerson[r.nom] = (byPerson[r.nom] || 0) + 1; });
   const top5 = Object.entries(byPerson).sort((a, b) => b[1] - a[1]).slice(0, 5);
 
-  const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+  // Thème — défini avant palette
+  const isDark    = document.documentElement.getAttribute("data-theme") === "dark";
   const gridColor = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)";
   const textColor = isDark ? "#b4b2a9" : "#5f5e5a";
+
+  // Palette selon le thème
+  const palette = {
+    blue:   isDark ? '#378ADD' : '#1a6fc4',
+    green:  isDark ? '#5DCAA5' : '#0a6b53',
+    orange: isDark ? '#F5C842' : '#b45309',
+    gray:   isDark ? '#888780' : '#6b7280',
+    purple: isDark ? '#a78bfa' : '#6d28d9',
+  };
+
+  const paletteAlpha = {
+    blue:   isDark ? '#378ADD99' : '#1a6fc4dd',
+    green:  isDark ? '#5DCAA599' : '#0a6b53dd',
+    orange: isDark ? '#F5C84299' : '#b45309dd',
+    gray:   isDark ? '#88878099' : '#6b7280dd',
+    purple: isDark ? '#a78bfa99' : '#6d28d9dd',
+  };
+
+  const statusData   = statusKeys.map((k) => displayInterventions.filter((r) => (r.status || "en_cours") === k).length);
+  const statusColors = [palette.blue, palette.green, palette.orange, palette.gray, palette.purple];
+  const statusBg     = [paletteAlpha.blue, paletteAlpha.green, paletteAlpha.orange, paletteAlpha.gray, paletteAlpha.purple];
 
   const barOptions = {
     responsive: true,
@@ -131,8 +150,35 @@ export default function Dashboard() {
     },
   };
 
+  const stackedOptions = {
+    responsive: true,
+    plugins: {
+      legend: { position: "bottom", labels: { color: textColor, font: { size: 11 }, padding: 10 } },
+      tooltip: { mode: "index" },
+    },
+    scales: {
+      x: { stacked: true, grid: { color: gridColor }, ticks: { color: textColor, font: { size: 11 } } },
+      y: { stacked: true, grid: { color: gridColor }, ticks: { color: textColor, stepSize: 1 } },
+    },
+  };
+
   const quarterLabel = `T${cur.q} ${cur.year}`;
   const prevLabel    = `T${prev.q} ${prev.year}`;
+
+  // Helper pour les données par statut par mois
+  function monthDataForStatus(statusKey) {
+    return monthLabels.map((_, i) => {
+      const d = new Date(now.getFullYear(), now.getMonth() - (11 - i), 1);
+      return displayInterventions.filter((r) => {
+        const parts = (r.date || "").split("T")[0].split("-");
+        return (
+          parseInt(parts[0]) === d.getFullYear() &&
+          parseInt(parts[1]) === d.getMonth() + 1 &&
+          (r.status || "en_cours") === statusKey
+        );
+      }).length;
+    });
+  }
 
   return (
     <div>
@@ -143,16 +189,12 @@ export default function Dashboard() {
             className={`tab${view === "global" ? " active" : ""}`}
             style={{ flex: "none", padding: "6px 14px", fontSize: 13 }}
             onClick={() => setView("global")}
-          >
-            🌐 Global
-          </button>
+          >🌐 Global</button>
           <button
             className={`tab${view === "personal" ? " active" : ""}`}
             style={{ flex: "none", padding: "6px 14px", fontSize: 13 }}
             onClick={() => setView("personal")}
-          >
-            👤 Personnel
-          </button>
+          >👤 Personnel</button>
         </div>
       </div>
 
@@ -171,7 +213,17 @@ export default function Dashboard() {
           {view === "personal" && <span style={{ fontSize: 12, color: "var(--text3)", marginLeft: 8 }}>— {currentUser?.username}</span>}
         </div>
         <Bar
-          data={{ labels: monthLabels, datasets: [{ label: "Interventions", data: monthData, backgroundColor: "#185FA5cc", borderColor: "#185FA5", borderWidth: 1, borderRadius: 4 }] }}
+          data={{
+            labels: monthLabels,
+            datasets: [{
+              label: "Interventions",
+              data: monthData,
+              backgroundColor: paletteAlpha.blue,
+              borderColor: palette.blue,
+              borderWidth: 1,
+              borderRadius: 4,
+            }],
+          }}
           options={barOptions}
         />
       </div>
@@ -182,7 +234,10 @@ export default function Dashboard() {
           <div style={{ fontWeight: 600, fontSize: 14, marginBottom: "1rem" }}>Répartition par statut</div>
           {displayInterventions.length > 0 ? (
             <Doughnut
-              data={{ labels: statusLabels, datasets: [{ data: statusData, backgroundColor: statusBg, borderColor: statusColors, borderWidth: 1.5 }] }}
+              data={{
+                labels: statusLabels,
+                datasets: [{ data: statusData, backgroundColor: statusBg, borderColor: statusColors, borderWidth: 1.5 }],
+              }}
               options={doughnutOptions}
             />
           ) : (
@@ -198,7 +253,14 @@ export default function Dashboard() {
             <Bar
               data={{
                 labels: top5.map(([n]) => n.length > 15 ? n.substring(0, 15) + "…" : n),
-                datasets: [{ label: "Interventions", data: top5.map(([, c]) => c), backgroundColor: "#E1F5EEcc", borderColor: "#085041", borderWidth: 1, borderRadius: 4 }],
+                datasets: [{
+                  label: "Interventions",
+                  data: top5.map(([, c]) => c),
+                  backgroundColor: paletteAlpha.green,
+                  borderColor: palette.green,
+                  borderWidth: 1,
+                  borderRadius: 4,
+                }],
               }}
               options={hbarOptions}
             />
@@ -206,6 +268,26 @@ export default function Dashboard() {
             <div className="empty">Aucune donnée</div>
           )}
         </div>
+      </div>
+
+      {/* Évolution des statuts par mois */}
+      <div className="card" id="chart-statuts-evolution">
+        <div style={{ fontWeight: 600, fontSize: 14, marginBottom: "1rem" }}>
+          Évolution des statuts (12 derniers mois)
+        </div>
+        <Bar
+          data={{
+            labels: monthLabels,
+            datasets: [
+              { label: "En cours",       data: monthDataForStatus("en_cours"),       backgroundColor: paletteAlpha.blue,   borderRadius: 4 },
+              { label: "Résolu",         data: monthDataForStatus("resolu"),         backgroundColor: paletteAlpha.green,  borderRadius: 4 },
+              { label: "En attente",     data: monthDataForStatus("en_attente"),     backgroundColor: paletteAlpha.orange, borderRadius: 4 },
+              { label: "Annulé",         data: monthDataForStatus("annule"),         backgroundColor: paletteAlpha.gray,   borderRadius: 4 },
+              { label: "Support Béthel", data: monthDataForStatus("envoye_support"), backgroundColor: paletteAlpha.purple, borderRadius: 4 },
+            ],
+          }}
+          options={stackedOptions}
+        />
       </div>
     </div>
   );
