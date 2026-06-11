@@ -3,9 +3,20 @@ namespace App\Controllers;
 
 use App\Auth;
 use App\Database;
+use OpenApi\Attributes as OA;
 
 class UserController
 {
+    #[OA\Get(
+        path: "/users",
+        summary: "Liste des utilisateurs",
+        tags: ["Users"],
+        security: [["bearerAuth" => []]],
+        responses: [
+            new OA\Response(response: 200, description: "Liste des utilisateurs"),
+            new OA\Response(response: 403, description: "Accès refusé"),
+        ]
+    )]
     public function index(): void
     {
         Auth::checkAdmin();
@@ -14,6 +25,28 @@ class UserController
         echo json_encode($stmt->fetchAll());
     }
 
+    #[OA\Post(
+        path: "/users",
+        summary: "Créer un utilisateur",
+        tags: ["Users"],
+        security: [["bearerAuth" => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ["username", "password", "role"],
+                properties: [
+                    new OA\Property(property: "username", type: "string", example: "john_doe"),
+                    new OA\Property(property: "password", type: "string", example: "motdepasse"),
+                    new OA\Property(property: "role",     type: "string", enum: ["admin", "user"]),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 200, description: "Utilisateur créé"),
+            new OA\Response(response: 400, description: "Données invalides"),
+            new OA\Response(response: 403, description: "Accès refusé"),
+        ]
+    )]
     public function create(): void
     {
         Auth::checkAdmin();
@@ -32,6 +65,19 @@ class UserController
         echo json_encode(['id' => $db->lastInsertId(), 'success' => true]);
     }
 
+    #[OA\Delete(
+        path: "/users/{id}",
+        summary: "Supprimer un utilisateur",
+        tags: ["Users"],
+        security: [["bearerAuth" => []]],
+        parameters: [
+            new OA\Parameter(name: "id", in: "path", required: true, schema: new OA\Schema(type: "integer")),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: "Utilisateur supprimé"),
+            new OA\Response(response: 403, description: "Accès refusé"),
+        ]
+    )]
     public function delete(int $id): void
     {
         $me = Auth::checkAdmin();
@@ -46,6 +92,28 @@ class UserController
         echo json_encode(['success' => true]);
     }
 
+    #[OA\Put(
+        path: "/users/{id}/password",
+        summary: "Modifier un mot de passe",
+        tags: ["Users"],
+        security: [["bearerAuth" => []]],
+        parameters: [
+            new OA\Parameter(name: "id", in: "path", required: true, schema: new OA\Schema(type: "integer")),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ["password"],
+                properties: [
+                    new OA\Property(property: "password", type: "string", example: "nouveaumotdepasse"),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 200, description: "Mot de passe modifié"),
+            new OA\Response(response: 401, description: "Non autorisé"),
+        ]
+    )]
     public function updatePassword(int $id): void
     {
         $me   = Auth::check();

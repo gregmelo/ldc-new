@@ -4,9 +4,30 @@ namespace App\Controllers;
 use App\Auth;
 use App\Database;
 use App\ActivityLog;
+use OpenApi\Attributes as OA;
 
 class AuthController
 {
+
+#[OA\Post(
+    path: "/login",
+    summary: "Authentification",
+    tags: ["Auth"],
+    requestBody: new OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ["username", "password"],
+            properties: [
+                new OA\Property(property: "username", type: "string", example: "admin"),
+                new OA\Property(property: "password", type: "string", example: "motdepasse"),
+            ]
+        )
+    ),
+    responses: [
+        new OA\Response(response: 200, description: "Token JWT retourné"),
+        new OA\Response(response: 401, description: "Identifiants incorrects"),
+    ]
+)]
     public function login(): void
     {
         $body = Auth::body();
@@ -49,6 +70,7 @@ class AuthController
         ]);
     }
 
+    
     public function me(): void
     {
         echo json_encode(Auth::check());

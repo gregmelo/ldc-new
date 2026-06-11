@@ -1,13 +1,27 @@
 <?php
-
 namespace App\Controllers;
 
 use App\Auth;
 use App\Database;
 use App\ActivityLog;
+use OpenApi\Attributes as OA;
 
 class ActivityLogController
 {
+    #[OA\Get(
+        path: "/activity-log",
+        summary: "Journal d'activité",
+        tags: ["Journal"],
+        security: [["bearerAuth" => []]],
+        parameters: [
+            new OA\Parameter(name: "limit",  in: "query", schema: new OA\Schema(type: "integer", default: 25)),
+            new OA\Parameter(name: "offset", in: "query", schema: new OA\Schema(type: "integer", default: 0)),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: "Journal d'activité"),
+            new OA\Response(response: 403, description: "Accès refusé"),
+        ]
+    )]
     public function index(): void
     {
         Auth::checkAdmin();
@@ -30,13 +44,22 @@ class ActivityLogController
         echo json_encode(['logs' => $logs, 'total' => $total]);
     }
 
+    #[OA\Delete(
+        path: "/activity-log",
+        summary: "Purge du journal d'activité",
+        tags: ["Journal"],
+        security: [["bearerAuth" => []]],
+        responses: [
+            new OA\Response(response: 200, description: "Journal purgé"),
+            new OA\Response(response: 403, description: "Accès refusé"),
+        ]
+    )]
     public function purge(): void
     {
         Auth::checkAdmin();
         $db = Database::getInstance();
         $db->exec('TRUNCATE TABLE activity_log');
 
-        // Log la purge elle-même
         $user = Auth::check();
         ActivityLog::log($db, $user, 'purge', 'activity_log', null, 'Journal d\'activité purgé');
 
