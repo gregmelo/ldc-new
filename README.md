@@ -9,28 +9,38 @@ Cet outil permet aux volontaires du support informatique de tracer, gérer et an
 ## Fonctionnalités
 
 ### Gestion des interventions
-- Création, modification et suppression d'interventions
+- Création, modification et suppression d'interventions (admins uniquement)
 - Types d'intervention : visio/appel ou aide par message
+- Catégories : Teams, SharePoint, Builder, JW Stream, Accès, Matériel, Autre
 - Statuts : En cours, Résolu, En attente de retour, Annulé, Envoyé support Béthel
 - Notes enrichies avec éditeur de texte formaté (gras, italique, listes, liens, titres)
 - Date de début et date de fin
-- Recherche et filtres par statut et type
+- Recherche et filtres par statut, type et catégorie
+
+### Tableau de bord
+- Vue globale ou personnelle (toggle Global / Personnel)
+- Métriques avec comparaison trimestre précédent
+- Graphique d'évolution mensuelle
+- Graphique de répartition par statut
+- Graphique d'évolution des statuts (barres empilées)
+- Top 5 volontaires les plus aidés
 
 ### Historique & Analyse
-- Tableau de bord avec graphiques (évolution mensuelle, répartition par statut, top volontaires)
-- Comparaison avec le trimestre précédent
 - Historique par volontaire (panneau slide-in)
 - Rapport trimestriel avec export PDF et CSV
+- Export PDF avec graphiques, métriques et tableau détaillé
 
 ### Administration
 - Gestion des utilisateurs avec rôles (admin / utilisateur)
-- Journal d'activité complet (connexions, créations, modifications, suppressions)
+- Journal d'activité complet (connexions, créations, modifications, suppressions, changements de statut)
+- Purge du journal d'activité
 - Expiration de session automatique après 2h d'inactivité
 
 ### Interface
 - Mode clair / sombre (automatique selon les préférences système + toggle manuel)
 - Design responsive optimisé mobile et tablette
-- Cartes adaptatives sur mobile pour l'historique
+- Raccourcis clavier (N, H, R, D, J, E, ?)
+- Cartes adaptatives sur mobile
 
 ## Stack technique
 
@@ -41,17 +51,20 @@ Cet outil permet aux volontaires du support informatique de tracer, gérer et an
 - **TipTap** — éditeur de notes enrichies
 - **jsPDF** + **html2canvas** — export PDF
 - **SCSS** modulaire
+- **Vitest** + **Testing Library** — tests
 
 ### Backend
-- **PHP 8** — architecture PSR-4
+- **PHP 8.2** — architecture PSR-4
 - **MySQL / MariaDB**
 - **vlucas/phpdotenv** — variables d'environnement
 - **ezyang/htmlpurifier** — sanitisation HTML
+- **zircote/swagger-php** — documentation API
+- **PHPUnit 11** — tests
 - JWT maison pour l'authentification
 
 ### Hébergement
 - **Alwaysdata** (backend PHP + base de données)
-- Déployable sur tout hébergement PHP 8+
+- Déployable sur tout hébergement PHP 8.2+
 
 ## Structure du projet
 
@@ -59,20 +72,29 @@ Cet outil permet aux volontaires du support informatique de tracer, gérer et an
 ldc-new/
 ├── backend/
 │   ├── public/
-│   │   ├── index.php          # Point d'entrée unique
+│   │   ├── index.php               # Point d'entrée unique
+│   │   ├── docs.php                # Génération JSON OpenAPI
+│   │   ├── swagger-ui.html         # Interface Swagger UI
 │   │   └── .htaccess
 │   ├── src/
 │   │   ├── Auth.php
 │   │   ├── ActivityLog.php
 │   │   ├── Database.php
+│   │   ├── OpenApi.php
 │   │   ├── Router.php
 │   │   └── Controllers/
 │   │       ├── AuthController.php
 │   │       ├── InterventionController.php
 │   │       ├── UserController.php
 │   │       └── ActivityLogController.php
+│   ├── tests/
+│   │   ├── bootstrap.php
+│   │   ├── AuthTest.php
+│   │   ├── ActivityLogTest.php
+│   │   └── SanitizeHtmlTest.php
 │   ├── .env.example
-│   ├── .gitignore
+│   ├── .env.test
+│   ├── phpunit.xml
 │   └── composer.json
 ├── frontend/
 │   ├── src/
@@ -97,29 +119,41 @@ ldc-new/
 │   │   │       ├── RichTextEditor.jsx
 │   │   │       └── StatusBadge.jsx
 │   │   ├── hooks/
-│   │   │   └── useSessionTimeout.js
+│   │   │   ├── useSessionTimeout.js
+│   │   │   └── useKeyboardShortcuts.js
 │   │   ├── store/
 │   │   │   └── index.js
 │   │   ├── styles/
 │   │   │   ├── main.scss
 │   │   │   ├── _variables.scss
 │   │   │   └── tiptap.scss
+│   │   ├── tests/
+│   │   │   ├── setup.js
+│   │   │   ├── utils/
+│   │   │   │   ├── categories.test.js
+│   │   │   │   └── pdfExport.test.js
+│   │   │   └── components/
+│   │   │       └── StatusBadge.test.jsx
 │   │   ├── utils/
+│   │   │   ├── categories.js
 │   │   │   └── pdfExport.js
 │   │   ├── App.jsx
 │   │   └── main.jsx
 │   ├── .env.example
 │   ├── index.html
 │   ├── package.json
+│   ├── vitest.config.js
 │   └── vite.config.js
 ├── .gitignore
+├── LICENSE
+├── CONTRIBUTING.md
 └── README.md
 ```
 
 ## Installation
 
 ### Prérequis
-- PHP 8.1+
+- PHP 8.2+
 - Composer
 - Node.js 18+
 - MySQL / MariaDB
@@ -146,13 +180,9 @@ LDC_ALLOWED_ORIGIN=https://votre-domaine.com
 
 ### Base de données
 
-Exécuter le script SQL dans phpMyAdmin ou via CLI :
-
 ```bash
 mysql -h host -u user -p database < schema.sql
 ```
-
-Compte admin par défaut créé automatiquement — **changer le mot de passe à la première connexion**.
 
 ### Frontend
 
@@ -170,6 +200,22 @@ Variable d'environnement requise :
 VITE_API_URL=https://votre-domaine.com/backend/public/index.php
 ```
 
+## Tests
+
+### Backend (PHPUnit)
+
+```bash
+cd backend
+vendor/bin/phpunit
+```
+
+### Frontend (Vitest)
+
+```bash
+cd frontend
+npm run test:run
+```
+
 ## Déploiement
 
 ### Build frontend
@@ -179,33 +225,42 @@ cd frontend
 npm run build
 ```
 
-Le build est généré dans le dossier `dist/` à la racine du projet.
+Le build est généré dans `dist/` à la racine du projet.
 
 ### Upload sur le serveur
 
-1. Uploader le contenu de `dist/` à la racine de votre domaine
+1. Uploader le contenu de `dist/` à la racine de votre domaine via `scp` (recommandé pour les gros fichiers JS)
 2. Uploader le dossier `backend/` sur le serveur
 3. S'assurer que les fichiers `.htaccess` sont bien présents
 4. Configurer le `.env` avec les bonnes valeurs
 
-### .htaccess requis
+> ⚠️ Ne jamais uploader `node_modules/`, `vendor/`, `dist/` ou les fichiers `.env` via git.
 
-À la racine du site (pour React Router) :
-```apache
-RewriteEngine On
-RewriteBase /
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^ index.html [QSA,L]
+### Upload via scp (recommandé)
+
+```bash
+scp dist/assets/index-*.js user@host:www/ldc/assets/
 ```
 
-Dans `backend/public/` (pour le routeur PHP) :
-```apache
-RewriteEngine On
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^ index.php [QSA,L]
+## Documentation API
+
+La documentation Swagger UI est accessible à :
+
 ```
+https://votre-domaine.com/ldc/backend/public/swagger-ui.html
+```
+
+## Raccourcis clavier
+
+| Touche | Action |
+|--------|--------|
+| `N` | Nouvelle intervention |
+| `H` | Historique |
+| `R` | Rapport |
+| `D` | Dashboard |
+| `J` | Journal (admin) |
+| `E` | Équipe (admin) |
+| `?` | Aide raccourcis |
 
 ## API REST
 
@@ -216,12 +271,13 @@ RewriteRule ^ index.php [QSA,L]
 | GET | `/interventions` | Liste des interventions | ✓ |
 | POST | `/interventions` | Créer une intervention | ✓ |
 | PUT | `/interventions/:id` | Modifier une intervention | ✓ |
-| DELETE | `/interventions/:id` | Supprimer une intervention | ✓ |
+| DELETE | `/interventions/:id` | Supprimer une intervention | Admin |
 | GET | `/users` | Liste des utilisateurs | Admin |
 | POST | `/users` | Créer un utilisateur | Admin |
 | DELETE | `/users/:id` | Supprimer un utilisateur | Admin |
 | PUT | `/users/:id/password` | Modifier un mot de passe | ✓ |
 | GET | `/activity-log` | Journal d'activité | Admin |
+| DELETE | `/activity-log` | Purger le journal | Admin |
 
 ## Sécurité
 
@@ -232,6 +288,7 @@ RewriteRule ^ index.php [QSA,L]
 - Protection CORS configurée par domaine
 - Mots de passe hashés avec bcrypt (coût 12)
 - Variables sensibles dans `.env` (non versionné)
+- Édition et suppression réservées aux admins
 
 ## Licence
 

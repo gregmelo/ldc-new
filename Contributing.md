@@ -11,6 +11,7 @@ Ce document décrit les conventions et bonnes pratiques à suivre pour contribue
 - [Workflow Git](#workflow-git)
 - [Conventions de code](#conventions-de-code)
 - [Structure des commits](#structure-des-commits)
+- [Tests](#tests)
 - [Soumettre une Pull Request](#soumettre-une-pull-request)
 - [Signaler un bug](#signaler-un-bug)
 - [Proposer une fonctionnalité](#proposer-une-fonctionnalité)
@@ -29,7 +30,7 @@ Toute contribution doit être respectueuse, constructive et orientée vers l'am�
 Avant de contribuer, assurez-vous d'avoir installé :
 
 - **Node.js** 18+ et **npm**
-- **PHP** 8.1+
+- **PHP** 8.2+
 - **Composer**
 - **Git**
 - Un éditeur de code (VSCode recommandé)
@@ -75,7 +76,7 @@ cd backend/public
 php -S localhost:8080
 ```
 
-Le frontend sera accessible sur `http://localhost:5173` avec un proxy vers le backend configuré dans `vite.config.js`.
+Le frontend sera accessible sur `http://localhost:5173`.
 
 ---
 
@@ -90,18 +91,15 @@ Le frontend sera accessible sur `http://localhost:5173` avec un proxy vers le ba
 | `fix/nom-du-bug` | Correction de bug |
 | `chore/description` | Maintenance, dépendances, config |
 | `docs/description` | Documentation uniquement |
+| `test/description` | Ajout ou amélioration de tests |
 
 ### Exemple
 
 ```bash
-# Créer une branche pour une nouvelle fonctionnalité
 git checkout -b feature/export-excel
-
-# Travailler, commiter
+# ... développement ...
 git add .
 git commit -m "feat: ajout export Excel pour le rapport trimestriel"
-
-# Pousser et ouvrir une PR
 git push origin feature/export-excel
 ```
 
@@ -114,15 +112,18 @@ git push origin feature/export-excel
 - **Composants** : PascalCase (`InterventionForm.jsx`)
 - **Hooks** : camelCase préfixé `use` (`useSessionTimeout.js`)
 - **Utilitaires** : camelCase (`pdfExport.js`)
+- **Tests** : même nom que le fichier testé + `.test.js(x)` (`categories.test.js`)
 - **Styles** : BEM via SCSS (`.intervention-card__header`)
 - Pas de `var` — utiliser `const` et `let`
 - Fonctions fléchées pour les callbacks
 - Props destructurées dans la signature de fonction
 - Un composant = un fichier
+- Hooks appelés uniquement à l'intérieur des composants React
 
 ```jsx
 // ✅ Bien
 export default function InterventionCard({ nom, date, status, onClick }) {
+  const isAdmin = useAuthStore((s) => s.user?.role === 'admin')
   return (
     <div className="intervention-card" onClick={onClick}>
       ...
@@ -130,11 +131,9 @@ export default function InterventionCard({ nom, date, status, onClick }) {
   )
 }
 
-// ❌ À éviter
-export default function InterventionCard(props) {
-  var nom = props.nom
-  ...
-}
+// ❌ À éviter — hook hors composant
+const isAdmin = useAuthStore((s) => s.user?.role === 'admin')
+export default function InterventionCard(props) { ... }
 ```
 
 ### Backend (PHP)
@@ -146,32 +145,30 @@ export default function InterventionCard(props) {
 - Typage strict des paramètres et retours de méthodes
 - Toujours utiliser des requêtes préparées PDO
 - Ne jamais stocker de données sensibles en clair
+- Annotations Swagger via attributs PHP `#[OA\...]` (pas PHPDoc)
 
 ```php
 // ✅ Bien
-public function show(int $id): void
+#[OA\Get(path: "/interventions", summary: "Liste", tags: ["Interventions"])]
+public function index(): void
 {
     Auth::check();
-    $db   = Database::getInstance();
     $stmt = $db->prepare('SELECT * FROM interventions WHERE id = ?');
     $stmt->execute([$id]);
-    ...
 }
 
 // ❌ À éviter
-function show($id) {
+function index() {
     $result = mysqli_query($conn, "SELECT * FROM interventions WHERE id = $id");
-    ...
 }
 ```
 
 ### SCSS
 
 - Variables dans `_variables.scss`
-- Un fichier par domaine (`_layout.scss`, `_components.scss`)
 - Utiliser les variables CSS (`var(--accent)`) pour les couleurs thémables
 - Éviter les `!important`
-- Media queries dans les blocs concernés ou en fin de fichier
+- Media queries dans les blocs concernés
 
 ---
 
@@ -183,10 +180,6 @@ Ce projet suit la convention [Conventional Commits](https://www.conventionalcomm
 
 ```
 <type>(<scope>): <description courte>
-
-[corps optionnel]
-
-[pied de page optionnel]
 ```
 
 ### Types
@@ -195,7 +188,7 @@ Ce projet suit la convention [Conventional Commits](https://www.conventionalcomm
 |------|-------|
 | `feat` | Nouvelle fonctionnalité |
 | `fix` | Correction de bug |
-| `chore` | Maintenance (dépendances, config, CI) |
+| `chore` | Maintenance (dépendances, config) |
 | `docs` | Documentation uniquement |
 | `style` | Formatage, espaces (pas de changement logique) |
 | `refactor` | Refactoring sans ajout de fonctionnalité |
@@ -205,12 +198,50 @@ Ce projet suit la convention [Conventional Commits](https://www.conventionalcomm
 ### Exemples
 
 ```bash
-git commit -m "feat: ajout du panneau historique par volontaire"
-git commit -m "fix: correction de l'encodage HTML dans les notes"
-git commit -m "chore: mise à jour de Chart.js vers la v4"
-git commit -m "docs: mise à jour du README avec les nouvelles routes API"
-git commit -m "refactor: extraction de la logique PDF dans un utilitaire dédié"
+git commit -m "feat: ajout panneau historique par volontaire"
+git commit -m "fix: correction encodage HTML dans les notes"
+git commit -m "chore: mise à jour dépendances npm"
+git commit -m "docs: mise à jour README avec nouvelles routes API"
+git commit -m "test: ajout tests PHPUnit pour ActivityLog"
 ```
+
+---
+
+## Tests
+
+### Backend (PHPUnit)
+
+```bash
+cd backend
+vendor/bin/phpunit
+```
+
+Les tests utilisent une base SQLite en mémoire — aucune connexion à la BDD de production n'est nécessaire.
+
+Fichiers de test dans `backend/tests/` :
+- `AuthTest.php` — génération et vérification des tokens JWT
+- `ActivityLogTest.php` — insertion et comptage des logs
+- `SanitizeHtmlTest.php` — sanitisation HTML (XSS, balises autorisées)
+
+### Frontend (Vitest)
+
+```bash
+cd frontend
+npm run test:run       # exécution unique
+npm run test           # mode watch
+```
+
+Fichiers de test dans `frontend/src/tests/` :
+- `utils/categories.test.js` — liste des catégories
+- `utils/pdfExport.test.js` — export PDF (avec mocks)
+- `components/StatusBadge.test.jsx` — configuration des statuts
+
+### Règles pour les tests
+
+- Tout nouveau utilitaire doit avoir un fichier de test associé
+- Les mocks doivent utiliser `vi.fn().mockImplementation(function() {...})` pour les constructeurs
+- Ne jamais connecter les tests à la BDD de production
+- Les tests doivent passer avant toute PR
 
 ---
 
@@ -218,7 +249,7 @@ git commit -m "refactor: extraction de la logique PDF dans un utilitaire dédié
 
 1. **Forker** le dépôt et créer une branche depuis `main`
 2. **Développer** en suivant les conventions ci-dessus
-3. **Tester** votre modification manuellement
+3. **Tester** — s'assurer que tous les tests passent
 4. **Builder** le frontend sans erreur : `npm run build`
 5. **Commiter** avec des messages clairs
 6. **Ouvrir une PR** vers `main` avec :
@@ -229,11 +260,14 @@ git commit -m "refactor: extraction de la logique PDF dans un utilitaire dédié
 
 ### Checklist PR
 
-- [ ] Le build frontend passe sans erreur
+- [ ] Tous les tests PHPUnit passent (`vendor/bin/phpunit`)
+- [ ] Tous les tests Vitest passent (`npm run test:run`)
+- [ ] Le build frontend passe sans erreur (`npm run build`)
 - [ ] Les conventions de nommage sont respectées
-- [ ] Pas de fichiers `.env` ou `node_modules` inclus
+- [ ] Pas de fichiers `.env`, `node_modules/` ou `vendor/` inclus
 - [ ] Le code ne contient pas de `console.log` de debug
-- [ ] La documentation est mise à jour si nécessaire
+- [ ] La documentation Swagger est mise à jour si de nouvelles routes sont ajoutées
+- [ ] Le README est mis à jour si nécessaire
 
 ---
 
@@ -264,7 +298,7 @@ Ouvrez une **Issue** avec le label `enhancement` en décrivant :
 
 ## Questions
 
-Pour toute question sur le projet, vous pouvez ouvrir une Issue avec le label `question`.
+Pour toute question sur le projet, ouvrez une Issue avec le label `question`.
 
 ---
 
