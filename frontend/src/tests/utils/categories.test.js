@@ -9,11 +9,12 @@ describe('CATEGORIES', () => {
     expect(CATEGORIES).toContain('JW Stream')
     expect(CATEGORIES).toContain('Accès')
     expect(CATEGORIES).toContain('Matériel')
+    expect(CATEGORIES).toContain('Outlook')
     expect(CATEGORIES).toContain('Autre')
   })
 
-  it('contient exactement 7 catégories', () => {
-    expect(CATEGORIES).toHaveLength(7)
+  it('contient exactement 8 catégories', () => {
+    expect(CATEGORIES).toHaveLength(8)
   })
 
   it('est un tableau', () => {

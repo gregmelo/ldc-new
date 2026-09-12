@@ -5,5 +5,6 @@ export const CATEGORIES = [
   'JW Stream',
   'Accès',
   'Matériel',
+  'Outlook',
   'Autre',
 ]
